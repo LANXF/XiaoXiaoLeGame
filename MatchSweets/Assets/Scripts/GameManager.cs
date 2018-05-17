@@ -48,6 +48,9 @@ public class GameManager : MonoBehaviour {
     public int xColumn;
     public int yRow;
 
+    //填充时间
+    public float fillTime = 0;
+
     public GameObject girdPrefab;
 
     //甜品数组
@@ -93,6 +96,8 @@ public class GameManager : MonoBehaviour {
                 CreateNewSweet(x, y, SweetsType.EMPTY);
             }
         }
+
+        StartCoroutine(AllFill());
     }
 	
 	// Update is called once per frame
@@ -100,12 +105,13 @@ public class GameManager : MonoBehaviour {
 		
 	}
 
-    //
+    //校正甜品的位置
     public Vector2 CorrectPosition(int x, int y)
     {
         return new Vector2(transform.position.x - xColumn/2f + x, transform.position.y + yRow/2f - y);
     }
 
+    //创建一个甜品
     private GameSweet CreateNewSweet(int x, int y, SweetsType type)
     {
         GameObject newObj = Instantiate(sweetPrefabDict[type], CorrectPosition(x,y),Quaternion.identity);
@@ -113,6 +119,12 @@ public class GameManager : MonoBehaviour {
 
         GameSweet gameSweet = newObj.GetComponent<GameSweet>();
         gameSweet.Init(x, y, this, type);
+
+        //如果是普通类型就创建一个随机的颜色的甜品
+        if (type == SweetsType.NORMAL)
+        {
+            gameSweet.ColorComponent.SetColor((ColorSweet.ColorType)Random.Range(0, gameSweet.ColorComponent.numColors));
+        }
         //数组赋值
         sweets[x, y] = gameSweet;
 
@@ -120,14 +132,60 @@ public class GameManager : MonoBehaviour {
     }
     
     //全部填充的方法
-    private void AllFill()
+    private IEnumerator AllFill()
     {
+        while (Fill())
+        {
+            yield return new WaitForSeconds(fillTime);
+            Debug.Log("填充中");
+        }
 
     }
     //分部填充
-    private void Fill()
+    private bool Fill()
     {
-        bool filledNotFinshed = false;//这个部分布尔值是用来判断本次填充是否完成。
-        
+        bool filledNotFinished = false;//这个部分布尔值是用来判断本次填充是否完成。
+        for (int y = yRow-2; y >= 0; y--)
+        {
+            for (int x = 0; x < xColumn; x++)
+            {
+                GameSweet sweet = sweets[x, y];
+                if (sweet.CanMove())
+                {
+                    GameSweet sweetBelow = sweets[x, y + 1];
+                    if (sweetBelow.Type == SweetsType.EMPTY)
+                    {
+                        sweet.MovedComponent.Move(x, y + 1, fillTime);
+                        sweets[x, y + 1] = sweet;
+                        Destroy(sweetBelow.gameObject);
+                        //填充上面哪行
+                        CreateNewSweet(x, y, SweetsType.EMPTY);
+
+                        filledNotFinished = true;
+                    }
+                }
+
+                if (y == 0 && sweet.Type == SweetsType.EMPTY)
+                {
+                    GameObject newSweetObject = Instantiate(sweetPrefabDict[SweetsType.NORMAL], CorrectPosition(x, y - 1), Quaternion.identity);
+                    newSweetObject.transform.SetParent(transform);
+
+                    GameSweet sweetComponent = newSweetObject.GetComponent<GameSweet>();
+                    sweetComponent.Init(x, y - 1, this, SweetsType.NORMAL);
+
+                    sweetComponent.MovedComponent.Move(x, y, fillTime);
+                    sweetComponent.ColorComponent.SetColor((ColorSweet.ColorType)Random.Range(0, sweetComponent.ColorComponent.numColors));
+
+                    sweets[x, y] = sweetComponent;
+
+                    //销毁空物体
+                    Destroy(sweet.gameObject);
+
+                    filledNotFinished = true;
+                }
+            }
+        }
+
+        return filledNotFinished;
     }
 }
