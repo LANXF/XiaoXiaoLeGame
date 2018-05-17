@@ -158,6 +158,8 @@ MonoBehaviour:
     prefab: {fileID: 1717179662875152, guid: c2ffd023fc79ced4086ae742c9756fc8, type: 2}
   - type: 1
     prefab: {fileID: 1793025940686196, guid: 3282991059fb6b24baf9e5bcf2a0d951, type: 2}
+  - type: 2
+    prefab: {fileID: 1815869288514166, guid: 8979c702a41360345aea69dd56271b77, type: 2}
   xColumn: 10
   yRow: 10
   fillTime: 0.25
