@@ -97,6 +97,9 @@ public class GameManager : MonoBehaviour {
             }
         }
 
+        Destroy(sweets[4, 4].gameObject);
+        CreateNewSweet(4, 4, SweetsType.BARRIER);
+
         StartCoroutine(AllFill());
     }
 	
@@ -150,9 +153,10 @@ public class GameManager : MonoBehaviour {
             for (int x = 0; x < xColumn; x++)
             {
                 GameSweet sweet = sweets[x, y];
-                if (sweet.CanMove())
+                if (sweet.CanMove())//如果无法移动，则无法往下填充
                 {
                     GameSweet sweetBelow = sweets[x, y + 1];
+                    //垂直填充
                     if (sweetBelow.Type == SweetsType.EMPTY)
                     {
                         sweet.MovedComponent.Move(x, y + 1, fillTime);
@@ -162,6 +166,50 @@ public class GameManager : MonoBehaviour {
                         CreateNewSweet(x, y, SweetsType.EMPTY);
 
                         filledNotFinished = true;
+                    }
+                    else
+                    {
+                        //斜方向填充
+                        //如果不可以移动，就查看坐下和右下是否可以移动
+                        for (int i = -1; i <= 1; i++)
+                        {
+                            int downX = x + i;
+
+                            if (i != 0)
+                            {
+                                if (downX >= 0 && downX < xColumn)
+                                {
+                                    GameSweet downSweet = sweets[downX, y + 1];
+                                    if (downSweet.Type == SweetsType.EMPTY)
+                                    {
+                                        bool canFill = true;
+                                        for (int aboveY = y; aboveY >= 0; aboveY--)
+                                        {
+                                            GameSweet sweetAbove = sweets[downX,aboveY];
+                                            if (sweetAbove.CanMove())
+                                            {
+                                                break;
+                                            }
+                                            else if (!sweetAbove.CanMove() && sweetAbove.Type != SweetsType.EMPTY)
+                                            {
+                                                canFill = false;
+                                                break;
+                                            }
+                                        }
+
+                                        if (!canFill)
+                                        {
+                                            Destroy(downSweet.gameObject);
+                                            sweet.MovedComponent.Move(downX,y+1,fillTime);
+                                            sweets[downX, y + 1] = sweet;
+                                            CreateNewSweet(x, y, SweetsType.EMPTY);
+                                            filledNotFinished = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
