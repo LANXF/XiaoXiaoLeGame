@@ -162,7 +162,7 @@ MonoBehaviour:
     prefab: {fileID: 1815869288514166, guid: 8979c702a41360345aea69dd56271b77, type: 2}
   xColumn: 10
   yRow: 10
-  fillTime: 0.4
+  fillTime: 0.2
   girdPrefab: {fileID: 1668397858869658, guid: 53f3e63bc10960146bd9fb0fd86e5fb5, type: 2}
 --- !u!1 &480192465
 GameObject:

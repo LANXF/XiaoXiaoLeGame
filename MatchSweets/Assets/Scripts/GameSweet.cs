@@ -39,6 +39,7 @@ public class GameSweet : MonoBehaviour {
     }
 
     //类型
+    private GameManager.SweetsType type;
     public GameManager.SweetsType Type
     {
         get
@@ -46,7 +47,6 @@ public class GameSweet : MonoBehaviour {
             return type;
         }
     }
-    private GameManager.SweetsType type;
 
     [HideInInspector]
     public GameManager gameManager;
@@ -82,6 +82,7 @@ public class GameSweet : MonoBehaviour {
         return ColorComponent != null;
     }
 
+    //初始化甜品的方法
     public void Init(int _x,int _y,GameManager _gameManager, GameManager.SweetsType _type)
     {
         x = _x;
@@ -90,6 +91,22 @@ public class GameSweet : MonoBehaviour {
         type = _type;
     }
 
+    private void OnMouseDown()
+    {
+        gameManager.PreesSweet(this);
+    }
+
+    private void OnMouseEnter()
+    {
+        gameManager.EnterSweet(this);
+    }
+
+    private void OnMouseUp()
+    {
+        gameManager.ReleaseSweet();
+    }
+
+    //初始化属性
     private void Awake()
     {
         movedComponent = GetComponent<MovedSweet>();

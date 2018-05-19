@@ -56,6 +56,10 @@ public class GameManager : MonoBehaviour {
     //甜品数组
     private GameSweet[,] sweets;
 
+    //要交换的两个甜品
+    private GameSweet pressedSweet;
+    private GameSweet enteredSweet;
+
     private void Awake()
     {
         _instance = this;
@@ -144,7 +148,7 @@ public class GameManager : MonoBehaviour {
         }
 
     }
-    //分部填充
+    //分步填充
     private bool Fill()
     {
         bool filledNotFinished = false;//这个部分布尔值是用来判断本次填充是否完成。
@@ -235,5 +239,52 @@ public class GameManager : MonoBehaviour {
         }
 
         return filledNotFinished;
+    }
+
+    //判断甜品是否相邻
+    private bool IsFriend(GameSweet sweet1,GameSweet sweet2)
+    {
+        //1.X相同
+
+        //2.Y相同
+
+        return sweet1.X == sweet2.X && Mathf.Abs(sweet1.Y - sweet2.Y) == 1 ||
+             sweet1.Y == sweet2.Y && Mathf.Abs(sweet1.X - sweet2.X) == 1;
+    }
+
+    //交换两个甜品
+    private void ExchangeSweets(GameSweet sweet1, GameSweet sweet2)
+    {
+        if (sweet1.CanMove() && sweet2.CanMove())
+        {
+            sweets[sweet1.X, sweet1.Y] = sweet2;
+            sweets[sweet2.X, sweet2.Y] = sweet1;
+
+            //先做缓存一下，要不然下面会把1的位置覆盖掉。
+            int tempX = sweet1.X;
+            int tempY = sweet1.Y;
+
+            sweet1.MovedComponent.Move(sweet2.X, sweet2.Y, fillTime);
+            sweet2.MovedComponent.Move(tempX, tempY, fillTime);
+        }
+    }
+
+    //按下
+    public void PreesSweet(GameSweet sweet)
+    {
+        pressedSweet = sweet;
+    }
+    //拖动
+    public void EnterSweet(GameSweet sweet)
+    {
+        enteredSweet = sweet;
+    }
+    //释放,交换位置
+    public void ReleaseSweet()
+    {
+        if (IsFriend(pressedSweet,enteredSweet))
+        {
+            ExchangeSweets(pressedSweet, enteredSweet);
+        }
     }
 }
