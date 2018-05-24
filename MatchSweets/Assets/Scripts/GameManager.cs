@@ -309,7 +309,6 @@ public class GameManager : MonoBehaviour {
             //行匹配
             matchRowSweets.Add(sweet);
             matchColumnSweets.Add(sweet);
-
             
             for (int i = 0; i <= 1; i++)
             {
@@ -335,7 +334,7 @@ public class GameManager : MonoBehaviour {
 
                     if (sweets[x, newY].CanColor() && sweets[x, newY].ColorComponent.Color == color)
                     {
-                        matchColumnSweets.Add(sweets[x, newY]);
+                        matchRowSweets.Add(sweets[x, newY]);
                     }
                     else
                     {
@@ -366,7 +365,7 @@ public class GameManager : MonoBehaviour {
 
                     if (sweets[newX, y].CanColor() && sweets[newX, y].ColorComponent.Color == color)
                     {
-                        matchRowSweets.Add(sweets[newX, y]);
+                        matchColumnSweets.Add(sweets[newX, y]);
                     }
                     else
                     {
@@ -378,9 +377,51 @@ public class GameManager : MonoBehaviour {
             //如果大于3，就添加到完成的数组里
             if (matchColumnSweets.Count >= 3)
             {
+                matchRowSweets.Clear();
+
                 for (int i = 0; i < matchColumnSweets.Count; i++)
                 {
                     finishedMatchingSweets.Add(matchColumnSweets[i]);
+
+                    //和上面一样，两个方向
+                    for (int j = 0; j <= 1; j++)
+                    {
+                        int x;
+                        for (int xDistance = 1; xDistance < xColumn; xDistance++)
+                        {
+                            if (j == 0)
+                            {
+                                x = newX - xDistance;
+                            }
+                            else
+                            {
+                                x = newX + xDistance;
+                            }
+
+                            if (x < 0 || x >= xColumn)
+                            {
+                                break;
+                            }
+
+                            if (sweets[x,matchColumnSweets[i].Y].CanColor() && sweets[x, matchColumnSweets[i].Y].ColorComponent.Color == color)
+                            {
+                                matchRowSweets.Add(sweets[x, matchColumnSweets[i].Y]);
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                //L、T型匹配
+                if (matchRowSweets.Count >= 3)
+                {
+                    for (int i = 0; i < matchRowSweets.Count; i++)
+                    {
+                        finishedMatchingSweets.Add(matchRowSweets[i]);
+                    }
                 }
 
                 //匹配成功
@@ -391,9 +432,50 @@ public class GameManager : MonoBehaviour {
             }
             else if (matchRowSweets.Count >= 3)
             {
+                matchColumnSweets.Clear();
+
                 for (int i = 0; i < matchRowSweets.Count; i++)
                 {
                     finishedMatchingSweets.Add(matchRowSweets[i]);
+
+                    for (int j = 0; j <= 1; j++)
+                    {
+                        int y;
+                        for (int yDistance = 1; yDistance < yRow; yDistance++)
+                        {
+                            if (j == 0)
+                            {
+                                y = newX - yDistance;
+                            }
+                            else
+                            {
+                                y = newX + yDistance;
+                            }
+
+                            if (y < 0 || y >= yDistance)
+                            {
+                                break;
+                            }
+
+                            if (sweets[matchColumnSweets[i].X , y].CanColor() && sweets[matchColumnSweets[i].X, y].ColorComponent.Color == color)
+                            {
+                                matchRowSweets.Add(sweets[matchColumnSweets[i].X, y]);
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                //L、T型匹配
+                if (matchColumnSweets.Count >= 3)
+                {
+                    for (int i = 0; i < matchColumnSweets.Count; i++)
+                    {
+                        finishedMatchingSweets.Add(matchColumnSweets[i]);
+                    }
                 }
 
                 //匹配成功
@@ -403,9 +485,8 @@ public class GameManager : MonoBehaviour {
                 }
             }
 
-            
         }
-
+        
         return null;
     }
 }
